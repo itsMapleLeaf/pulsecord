@@ -1,21 +1,9 @@
-import { Box, render, Text } from "ink"
+import { render } from "ink"
 import * as React from "react"
-import { Select } from "./select.js"
+import { Store } from "./store.js"
+import { SinkInputSelect } from "./view/sink-input-select.js"
 
-function App() {
-  const options = ["a", "b", "c"]
-  const [value, setValue] = React.useState<string>()
+const store = new Store()
+await store.init()
 
-  return (
-    <Box flexDirection="column">
-      <Select
-        options={options.map((value) => ({ value }))}
-        value={value}
-        onChange={setValue}
-      />
-      <Text>{value}</Text>
-    </Box>
-  )
-}
-
-render(<App />)
+render(<SinkInputSelect store={store} />)

@@ -9,7 +9,7 @@ import { Client } from "discord.js"
 import "dotenv/config"
 import { execa } from "execa"
 import { discordBotToken, discordGuildId, discordUserId } from "./env.js"
-import { raise } from "./errors.js"
+import { raise } from "./helpers/errors.js"
 
 // import { PA_SAMPLE_FORMAT, PulseAudio } from "pulseaudio.js"
 // const pulseAudio = new PulseAudio()

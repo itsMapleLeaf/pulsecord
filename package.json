@@ -11,27 +11,33 @@
     "start": "esmo --no-warnings src/main.tsx",
     "lint": "eslint --ext js,ts,tsx .",
     "lint-fix": "npm run lint -- --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test": "ava"
   },
   "dependencies": {
     "@discordjs/voice": "^0.7.5",
     "@types/react": "^17.0.37",
     "discord.js": "^13.3.1",
     "dotenv": "^10.0.0",
+    "esbuild": "^0.14.2",
     "esmo": "^0.12.1",
     "execa": "^6.0.0",
     "ink": "^3.2.0",
     "libsodium-wrappers": "^0.7.9",
     "mobx": "^6.3.8",
+    "mobx-react-lite": "^3.2.2",
     "opusscript": "^0.0.8",
     "pulseaudio.js": "^1.2.0",
-    "react": "^17.0.2"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "devDependencies": {
     "@itsmapleleaf/configs": "^1.0.4",
     "@types/node": "^16.11.12",
     "@typescript-eslint/eslint-plugin": "^5.6.0",
     "@typescript-eslint/parser": "^5.6.0",
+    "ava": "^4.0.0-rc.1",
+    "esbuild-node-loader": "^0.6.3",
     "eslint": "^8.4.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-import-resolver-typescript": "^2.5.0",
@@ -47,6 +53,20 @@
   "eslintConfig": {
     "extends": [
       "./node_modules/@itsmapleleaf/configs/eslint"
+    ]
+  },
+  "ava": {
+    "extensions": {
+      "ts": "module",
+      "tsx": "module"
+    },
+    "nodeArguments": [
+      "--loader=esbuild-node-loader",
+      "--experimental-specifier-resolution=node",
+      "--no-warnings"
+    ],
+    "files": [
+      "src/**/*.test.{ts,tsx}"
     ]
   }
 }
