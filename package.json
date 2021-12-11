@@ -7,24 +7,25 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --exec esmo --no-warnings src/main.ts",
-    "start": "esmo --no-warnings src/main.ts",
+    "dev": "nodemon --exec esmo --no-warnings src/main.tsx",
+    "start": "esmo --no-warnings src/main.tsx",
     "lint": "eslint --ext js,ts,tsx .",
     "lint-fix": "npm run lint -- --fix",
     "format": "prettier --write ."
   },
   "dependencies": {
     "@discordjs/voice": "^0.7.5",
-    "audify": "^1.7.0",
+    "@types/react": "^17.0.37",
     "discord.js": "^13.3.1",
     "dotenv": "^10.0.0",
-    "esbuild": "^0.14.2",
     "esmo": "^0.12.1",
     "execa": "^6.0.0",
+    "ink": "^3.2.0",
     "libsodium-wrappers": "^0.7.9",
+    "mobx": "^6.3.8",
     "opusscript": "^0.0.8",
     "pulseaudio.js": "^1.2.0",
-    "pulseaudio2": "^0.5.5"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@itsmapleleaf/configs": "^1.0.4",
