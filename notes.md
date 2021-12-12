@@ -1,3 +1,3 @@
 - [x] audio source selection
 - [x] bot should play selected source through discord
-- [ ] don't automatically play on startup, show select source screen initially
+- [x] don't automatically play on startup, show select source screen initially

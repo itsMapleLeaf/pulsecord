@@ -15,9 +15,9 @@ export const AudioSourceMenu = observer(function AudioSourceMenu({
         value: input,
         label: input.name,
       }))}
-      initialIndex={store.sources.index}
+      initialIndex={store.sources.currentIndex}
       onSelect={(item) => {
-        store.sources.setCurrentItem(item.value)
+        store.sources.setCurrent(item.value)
         store.setScreen("main")
       }}
     />

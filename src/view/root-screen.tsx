@@ -18,11 +18,11 @@ export const RootScreen = observer(function RootScreen({
       <MenuScreenLayout>
         <MenuScreenLayout.Title>
           PulseCord
-          {store.sources.currentItem ? (
+          {store.sources.current ? (
             <Text color="gray" bold={false}>
               {" - "}Playing from{" "}
               <Text bold color="white">
-                {store.sources.currentItem?.name}
+                {store.sources.current?.name}
               </Text>
             </Text>
           ) : (

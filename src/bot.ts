@@ -28,11 +28,11 @@ export class Bot {
     // when these specific values change,
     // and not when the whole list of sources or source object changes
     const deviceName = computed(() => {
-      return this.store.sources.currentItem?.deviceName
+      return this.store.sources.current?.deviceName
     })
 
     const sinkInputIndex = computed(() => {
-      return this.store.sources.currentItem?.sinkInputIndex
+      return this.store.sources.current?.sinkInputIndex
     })
 
     autorun(() => {
