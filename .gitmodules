@@ -1,3 +1,0 @@
-[submodule "patches/esbuild-node-loader"]
-	path = patches/esbuild-node-loader
-	url = https://github.com/antfu/esbuild-node-loader.git
