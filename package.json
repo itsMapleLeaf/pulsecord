@@ -37,7 +37,7 @@
     "@typescript-eslint/eslint-plugin": "^5.6.0",
     "@typescript-eslint/parser": "^5.6.0",
     "ava": "^4.0.0-rc.1",
-    "esbuild-node-loader": "^0.6.3",
+    "esbuild-node-loader": "link:patches/esbuild-node-loader",
     "eslint": "^8.4.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-import-resolver-typescript": "^2.5.0",
@@ -53,6 +53,10 @@
   "eslintConfig": {
     "extends": [
       "./node_modules/@itsmapleleaf/configs/eslint"
+    ],
+    "ignorePatterns": [
+      "**/node_modules/**",
+      "**/patches/**"
     ]
   },
   "ava": {

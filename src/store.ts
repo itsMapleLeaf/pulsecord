@@ -18,7 +18,7 @@ type PulseaudioSinkInput = {
 
 export class Store {
   sinkInputs: SinkInput[] = []
-  selectedSinkInputIndex?: number = undefined
+  selectedSinkInputIndex?: number
   pulse = new PulseAudio()
 
   constructor() {
