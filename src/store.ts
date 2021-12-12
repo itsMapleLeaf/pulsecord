@@ -1,67 +1,76 @@
-import { makeAutoObservable } from "mobx"
+import { action, makeObservable, observable } from "mobx"
 import { PulseAudio } from "pulseaudio.js"
 import { debounce } from "./helpers/debounce.js"
+import { isTruthy } from "./helpers/is-truthy.js"
+import { IndexSelection } from "./index-selection.js"
 
-type SinkInput = {
-  index: number
+type Screen = "main" | "selectSource"
+
+type AudioSource = {
   name: string
-}
-
-type PulseaudioSinkInput = {
-  index: number
-  properties: {
-    application: {
-      name: string
-    }
-  }
+  sinkInputIndex: number
+  deviceName: string
 }
 
 export class Store {
-  sinkInputs: SinkInput[] = []
-  selectedSinkInputIndex?: number
+  sources = new IndexSelection<AudioSource>()
   pulse = new PulseAudio()
+  screen: Screen = "main"
 
   constructor() {
-    makeAutoObservable(this, { pulse: false }, { autoBind: true })
+    makeObservable(this, {
+      screen: observable,
+      setScreen: action.bound,
+    })
   }
 
-  setSinkInputs(inputs: SinkInput[]) {
-    this.sinkInputs = inputs
+  setScreen(screen: Screen) {
+    this.screen = screen
   }
 
-  setSelectedSinkInputIndex(index: number) {
-    this.selectedSinkInputIndex = index
-  }
-
-  get selectedSinkInput() {
-    return this.sinkInputs.find(
-      (input) => input.index === this.selectedSinkInputIndex,
-    )
+  async quit() {
+    await this.pulse.disconnect()
+    process.exit(0)
   }
 
   async init() {
     await this.pulse.connect()
-    await this.fetchSinkInputs()
+    await Promise.all([this.fetchApplications()])
 
-    const firstIndex = this.sinkInputs[0]?.index
-    if (firstIndex != null) {
-      this.setSelectedSinkInputIndex(firstIndex)
-    }
-
-    this.pulse.on("event.sink_input.new", this.fetchSinkInputs)
-    this.pulse.on("event.sink_input.changed", this.fetchSinkInputs)
-    this.pulse.on("event.sink_input.remove", this.fetchSinkInputs)
+    this.pulse.on("event.sink_input.new", this.fetchApplications)
+    this.pulse.on("event.sink_input.changed", this.fetchApplications)
+    this.pulse.on("event.sink_input.remove", this.fetchApplications)
   }
 
-  fetchSinkInputs = debounce(500, async () => {
-    const inputs =
-      (await this.pulse.getSinkInputList()) as PulseaudioSinkInput[]
+  fetchApplications = debounce(500, async () => {
+    const inputs: Array<Record<string, any>> =
+      await this.pulse.getSinkInputList()
 
-    this.setSinkInputs(
-      inputs.map((input) => ({
-        index: input.index,
-        name: input.properties.application.name,
-      })),
+    const sources = await Promise.all(
+      inputs.map(async (input) => {
+        const name =
+          input.properties.application?.name ??
+          input.properties.media?.name ??
+          input.name
+
+        try {
+          const source = await this.pulse.getSinkInfo(input.sink)
+
+          return {
+            name,
+            sinkInputIndex: input.index,
+            deviceName: source.name,
+          }
+        } catch (error: any) {
+          console.error(
+            `Failed to get device for ${name}:`,
+            error.message || error,
+          )
+          return undefined
+        }
+      }),
     )
+
+    this.sources.setItems(sources.filter(isTruthy))
   })
 }
