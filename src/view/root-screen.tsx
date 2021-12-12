@@ -1,20 +1,18 @@
-import { Box, Text } from "ink"
+import { Text } from "ink"
 import { observer } from "mobx-react-lite"
 import * as React from "react"
 import { SelectInput } from "../ink-select-input.js"
 import type { Store } from "../store.js"
 import { AudioSourceMenu } from "./application-menu.jsx"
-import { MenuScreenLayout } from "./menu-screen-layout.js"
+import { MenuScreenLayout } from "./menu-screen-layout.jsx"
 
-export const Root = observer(function Root({ store }: { store: Store }) {
-  return (
-    <Box borderStyle="single" borderColor="blue" paddingX={1} paddingY={1}>
-      <RootScreen store={store} />
-    </Box>
-  )
-})
-
-const RootScreen = observer(function RootScreen({ store }: { store: Store }) {
+export const RootScreen = observer(function RootScreen({
+  store,
+  onQuit,
+}: {
+  store: Store
+  onQuit: () => void
+}) {
   if (store.screen === "main") {
     return (
       <MenuScreenLayout>
@@ -44,7 +42,7 @@ const RootScreen = observer(function RootScreen({ store }: { store: Store }) {
               {
                 key: "quit",
                 label: "Quit",
-                value: () => store.quit(),
+                value: onQuit,
               },
             ]}
             onSelect={(item) => item.value()}

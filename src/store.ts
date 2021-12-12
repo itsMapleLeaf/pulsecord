@@ -3,6 +3,7 @@ import { PulseAudio } from "pulseaudio.js"
 import { debounce } from "./helpers/debounce.js"
 import { isTruthy } from "./helpers/is-truthy.js"
 import { IndexSelection } from "./index-selection.js"
+import type { Logger } from "./logger.js"
 
 type Screen = "main" | "selectSource"
 
@@ -17,7 +18,7 @@ export class Store {
   pulse = new PulseAudio()
   screen: Screen = "main"
 
-  constructor() {
+  constructor(private logger: Logger) {
     makeObservable(this, {
       screen: observable,
       setScreen: action.bound,
@@ -61,12 +62,8 @@ export class Store {
             sinkInputIndex: input.index,
             deviceName: source.monitor?.name ?? source.name,
           }
-        } catch (error: any) {
-          console.error(
-            `Failed to get device for ${name}:`,
-            error.message || error,
-          )
-          return undefined
+        } catch (error) {
+          this.logger.errorStack(`Failed to get device for ${name}:`, error)
         }
       }),
     )

@@ -1,13 +1,24 @@
-import { render } from "ink"
+import { Box, render } from "ink"
 import * as React from "react"
 import { Bot } from "./bot.js"
+import { FileLogger } from "./logger.js"
 import { Store } from "./store.js"
-import { Root } from "./view/root.js"
+import { RootScreen } from "./view/root-screen.js"
 
-const store = new Store()
+const logger = new FileLogger("debug.log")
+
+const store = new Store(logger)
 await store.init()
 
-const bot = new Bot(store)
+const bot = new Bot(logger, store)
 await bot.run()
 
-render(<Root store={store} />)
+const view = render(
+  <Box borderStyle="single" borderColor="blue" paddingX={1} paddingY={1}>
+    <RootScreen store={store} onQuit={() => view.unmount()} />
+  </Box>,
+)
+await view.waitUntilExit()
+
+bot.leave()
+await store.quit()

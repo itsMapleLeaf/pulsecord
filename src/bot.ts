@@ -10,16 +10,18 @@ import "dotenv/config"
 import type { ExecaChildProcess } from "execa"
 import { execa } from "execa"
 import { autorun, computed } from "mobx"
+import { createInterface } from "readline"
 import { discordBotToken, discordGuildId, discordUserId } from "./env.js"
 import { raise } from "./helpers/errors.js"
+import type { Logger } from "./logger.js"
 import type { Store } from "./store.js"
 
 export class Bot {
   client = this.createClient()
-  player = Bot.createPlayer()
+  player = this.createPlayer()
   recorder?: ExecaChildProcess
 
-  constructor(private readonly store: Store) {}
+  constructor(private readonly logger: Logger, private readonly store: Store) {}
 
   async run() {
     // these computed values makes it so that the autorun only runs
@@ -46,9 +48,13 @@ export class Bot {
           `--monitor-stream=${sinkInputIndex.get()}`,
           "--format=s16le",
           "--rate=48000",
+          "--verbose",
         ],
-        { stderr: "inherit", reject: false },
-      )
+        { reject: false },
+      ).on("error", (error) => this.logger.errorStack("parec error", error))
+
+      const lineReader = createInterface(this.recorder.stderr!)
+      lineReader.on("line", (line) => this.logger.info("[parec]", line))
 
       this.player.play(
         createAudioResource(this.recorder.stdout!, {
@@ -60,11 +66,17 @@ export class Bot {
     await this.client.login(discordBotToken)
   }
 
-  private static createPlayer() {
+  private createPlayer() {
     const player = createAudioPlayer()
-    player.on("stateChange", (_, newState) => {
-      console.info(`player state: ${newState.status}`)
+
+    player.on("stateChange", (_, state) => {
+      this.logger.info(`player state: ${state.status}`)
     })
+
+    player.on("error", (error) => {
+      this.logger.errorStack("Player error", error)
+    })
+
     return player
   }
 
@@ -75,6 +87,10 @@ export class Bot {
 
     client.on("ready", () => {
       this.joinVoiceChannel()
+    })
+
+    client.on("error", (error) => {
+      this.logger.errorStack("Discord client error", error)
     })
 
     return client
@@ -99,9 +115,17 @@ export class Bot {
       channelId: user.voice.channelId,
       adapterCreator: guild.voiceAdapterCreator,
     })
-      .on("stateChange", (_, newState) => {
-        console.info(`voice state: ${newState.status}`)
+      .on("stateChange", (_, state) => {
+        this.logger.info(`voice state: ${state.status}`)
+      })
+      .on("error", (error) => {
+        this.logger.errorStack("Voice connection error", error)
       })
       .subscribe(this.player)
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  leave() {
+    getVoiceConnection(discordGuildId)?.disconnect()
   }
 }
