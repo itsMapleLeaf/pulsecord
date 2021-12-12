@@ -59,7 +59,7 @@ export class Store {
           return {
             name,
             sinkInputIndex: input.index,
-            deviceName: source.name,
+            deviceName: source.monitor?.name ?? source.name,
           }
         } catch (error: any) {
           console.error(

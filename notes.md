@@ -1,0 +1,2 @@
+- [x] audio source selection
+- [x] bot should play selected source through discord

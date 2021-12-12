@@ -7,59 +7,93 @@ import {
 } from "@discordjs/voice"
 import { Client } from "discord.js"
 import "dotenv/config"
+import type { ExecaChildProcess } from "execa"
 import { execa } from "execa"
+import { autorun, computed } from "mobx"
 import { discordBotToken, discordGuildId, discordUserId } from "./env.js"
 import { raise } from "./helpers/errors.js"
+import type { Store } from "./store.js"
 
-// import { PA_SAMPLE_FORMAT, PulseAudio } from "pulseaudio.js"
-// const pulseAudio = new PulseAudio()
-// const sinkInputs = await pulseAudio.getSinkInputList()
+export class Bot {
+  client = this.createClient()
+  player = Bot.createPlayer()
+  recorder?: ExecaChildProcess
 
-// const pulseAudioStream = await pulseAudio.createRecordStream({
-//   // index: sinkInputs[0]?.index,
-//   index: 47,
-//   sampleSpec: { rate: 44100, format: PA_SAMPLE_FORMAT.S16LE, channels: 2 },
-// })
+  constructor(private readonly store: Store) {}
 
-// const opusEncoder = new OpusEncoder(
-//   48000,
-//   2,
-//   2049 /* OpusApplication.OPUS_APPLICATION_AUDIO */,
-// )
+  async run() {
+    // these computed values makes it so that the autorun only runs
+    // when these specific values change,
+    // and not when the whole list of sources or source object changes
+    const deviceName = computed(() => {
+      return this.store.sources.currentItem?.deviceName
+    })
 
-const recorder = execa("parec", [
-  "--device=alsa_output.usb-Generic_TX-Hifi_Type_C_Audio-00.analog-stereo.monitor",
-  "--monitor-stream=181",
-  "--file-format=flac",
-])
+    const sinkInputIndex = computed(() => {
+      return this.store.sources.currentItem?.sinkInputIndex
+    })
 
-const player = createAudioPlayer()
-player.play(
-  createAudioResource(recorder.stdout!, { inputType: StreamType.Arbitrary }),
-)
+    autorun(() => {
+      this.recorder?.kill()
 
-player.on("stateChange", (_, newState) => {
-  console.info(`player state: ${newState.status}`)
-})
+      if (!deviceName.get()) return
+      if (!sinkInputIndex.get()) return
 
-const client = new Client({
-  intents: ["GUILDS", "GUILD_MEMBERS", "GUILD_VOICE_STATES"],
-})
+      this.recorder = execa(
+        "parec",
+        [
+          `--device=${deviceName.get()}`,
+          `--monitor-stream=${sinkInputIndex.get()}`,
+          "--format=s16le",
+          "--rate=48000",
+        ],
+        { stderr: "inherit", reject: false },
+      )
 
-client.on("ready", () => {
-  const guild =
-    client.guilds.cache.get(discordGuildId) ??
-    raise(`Couldn't find guild with id ${discordGuildId}`)
+      this.player.play(
+        createAudioResource(this.recorder.stdout!, {
+          inputType: StreamType.Raw,
+        }),
+      )
+    })
 
-  const user =
-    guild.members.cache.get(discordUserId) ??
-    raise(`Couldn't find user with id ${discordUserId}`)
+    await this.client.login(discordBotToken)
+  }
 
-  const connection = getVoiceConnection(guild.id)
-  if (
-    connection?.joinConfig.channelId !== user.voice.channelId &&
-    user.voice.channelId
-  ) {
+  private static createPlayer() {
+    const player = createAudioPlayer()
+    player.on("stateChange", (_, newState) => {
+      console.info(`player state: ${newState.status}`)
+    })
+    return player
+  }
+
+  private createClient() {
+    const client = new Client({
+      intents: ["GUILDS", "GUILD_MEMBERS", "GUILD_VOICE_STATES"],
+    })
+
+    client.on("ready", () => {
+      this.joinVoiceChannel()
+    })
+
+    return client
+  }
+
+  private joinVoiceChannel() {
+    const guild =
+      this.client.guilds.cache.get(discordGuildId) ??
+      raise(`Couldn't find guild with id ${discordGuildId}`)
+
+    const user =
+      guild.members.cache.get(discordUserId) ??
+      raise(`Couldn't find user with id ${discordUserId}`)
+
+    if (!user.voice.channelId) return
+
+    const connection = getVoiceConnection(guild.id)
+    if (connection?.joinConfig.channelId === user.voice.channelId) return
+
     joinVoiceChannel({
       guildId: guild.id,
       channelId: user.voice.channelId,
@@ -68,8 +102,6 @@ client.on("ready", () => {
       .on("stateChange", (_, newState) => {
         console.info(`voice state: ${newState.status}`)
       })
-      .subscribe(player)
+      .subscribe(this.player)
   }
-})
-
-await client.login(discordBotToken)
+}
