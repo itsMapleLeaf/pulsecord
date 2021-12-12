@@ -7,3 +7,7 @@ const store = new Store()
 await store.init()
 
 render(<SinkInputSelect store={store} />)
+
+process.on("SIGINT", () => {
+  process.exit()
+})
