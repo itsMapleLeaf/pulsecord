@@ -82,7 +82,7 @@ export class Bot {
 
   private createClient() {
     const client = new Client({
-      intents: ["GUILDS", "GUILD_MEMBERS", "GUILD_VOICE_STATES"],
+      intents: ["GUILDS", "GUILD_VOICE_STATES"],
     })
 
     client.on("ready", () => {
