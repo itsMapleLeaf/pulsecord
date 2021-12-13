@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs"
 import { appendFile } from "node:fs/promises"
 import { dirname } from "node:path"
+import { inspect } from "node:util"
 import { toError } from "./helpers/errors.js"
 
 export type Logger = {
@@ -18,7 +19,15 @@ export class FileLogger implements Logger {
 
   private log(...values: unknown[]) {
     const timestamp = `[${new Date().toLocaleString()}]`
-    void appendFile(this.filePath, [timestamp, ...values].join("\t") + "\n")
+
+    const serializedValues = [
+      timestamp,
+      ...values.map((value) =>
+        typeof value === "string" ? value : inspect(value, { depth: 5 }),
+      ),
+    ]
+
+    void appendFile(this.filePath, serializedValues.join("\t") + "\n")
   }
 
   info(...values: unknown[]) {
