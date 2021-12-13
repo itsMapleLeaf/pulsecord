@@ -19,9 +19,8 @@ export function debounce<Args extends unknown[], Result>(
         promise!.resolve(await fn(...args))
       } catch (error) {
         promise!.reject(error)
-      } finally {
-        promise = undefined
       }
+      promise = undefined
     }, ms)
 
     return promise
