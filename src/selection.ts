@@ -4,13 +4,14 @@ export class Selection<Item> {
   items: Item[] = []
   private _current?: Item = undefined
 
-  constructor(initialItem?: Item) {
+  constructor(private getKey: (item: Item) => string, initialItem?: Item) {
     makeAutoObservable(this, undefined, { autoBind: true })
     this._current = initialItem
   }
 
   get current(): Item | undefined {
-    return this._current !== undefined && this.items.includes(this._current)
+    return this._current !== undefined &&
+      this.items.map(this.getKey).includes(this.getKey(this._current))
       ? this._current
       : undefined
   }
