@@ -2,7 +2,7 @@ import { makeAutoObservable } from "mobx"
 
 export class Selection<Item> {
   items: Item[] = []
-  private _current?: Item
+  private _current?: Item = undefined
 
   constructor(initialItem?: Item) {
     makeAutoObservable(this, undefined, { autoBind: true })
