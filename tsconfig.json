@@ -1,5 +1,5 @@
 {
-  "extends": "@itsmapleleaf/configs/tsconfig.app",
+  "extends": "@itsmapleleaf/configs/tsconfig.base",
   "compilerOptions": {
     "target": "es2021",
     "module": "es2022",
