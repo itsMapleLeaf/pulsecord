@@ -2,27 +2,30 @@ import { Text } from "ink"
 import { observer } from "mobx-react-lite"
 import * as React from "react"
 import { SelectInput } from "../ink-select-input.js"
-import type { Store } from "../store.js"
+import type { PulseStore } from "../stores/pulse-store.js"
+import type { RouterStore } from "../stores/router-store.js"
 import { AudioSourceMenu } from "./application-menu.jsx"
 import { MenuScreenLayout } from "./menu-screen-layout.jsx"
 
 export const RootScreen = observer(function RootScreen({
-  store,
+  pulseStore,
+  routerStore,
   onQuit,
 }: {
-  store: Store
+  pulseStore: PulseStore
+  routerStore: RouterStore
   onQuit: () => void
 }) {
-  if (store.screen === "main") {
+  if (routerStore.screen === "main") {
     return (
       <MenuScreenLayout>
         <MenuScreenLayout.Title>
           PulseCord
-          {store.sources.current ? (
+          {pulseStore.sources.current ? (
             <Text color="gray" bold={false}>
               {" - "}Playing from{" "}
               <Text bold color="white">
-                {store.sources.current?.name}
+                {pulseStore.sources.current?.name}
               </Text>
             </Text>
           ) : (
@@ -37,7 +40,12 @@ export const RootScreen = observer(function RootScreen({
               {
                 key: "selectApplication",
                 label: "Select Audio Source",
-                value: () => store.setScreen("selectSource"),
+                value: () => routerStore.setScreen("selectSource"),
+              },
+              {
+                key: "settings",
+                label: "Settings",
+                value: () => routerStore.setScreen("settings"),
               },
               {
                 key: "quit",
@@ -52,12 +60,23 @@ export const RootScreen = observer(function RootScreen({
     )
   }
 
-  if (store.screen === "selectSource") {
+  if (routerStore.screen === "selectSource") {
     return (
       <MenuScreenLayout>
         <MenuScreenLayout.Title>Select Audio Source</MenuScreenLayout.Title>
         <MenuScreenLayout.ListSection>
-          <AudioSourceMenu store={store} />
+          <AudioSourceMenu routerStore={routerStore} pulseStore={pulseStore} />
+        </MenuScreenLayout.ListSection>
+      </MenuScreenLayout>
+    )
+  }
+
+  if (routerStore.screen === "settings") {
+    return (
+      <MenuScreenLayout>
+        <MenuScreenLayout.Title>Settings</MenuScreenLayout.Title>
+        <MenuScreenLayout.ListSection>
+          <Text>:)</Text>
         </MenuScreenLayout.ListSection>
       </MenuScreenLayout>
     )
