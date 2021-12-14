@@ -21,4 +21,4 @@ const view = render(
 await view.waitUntilExit()
 
 bot.leave()
-await store.quit()
+await store.disconnect()

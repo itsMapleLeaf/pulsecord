@@ -29,9 +29,8 @@ export class Store {
     this.screen = screen
   }
 
-  async quit() {
+  async disconnect() {
     await this.pulse.disconnect()
-    process.exit(0)
   }
 
   async init() {
@@ -43,6 +42,7 @@ export class Store {
     this.pulse.on("event.sink_input.remove", this.fetchApplications)
   }
 
+  // eslint-disable-next-line unicorn/consistent-function-scoping
   fetchApplications = debounce(500, async () => {
     const inputs: Array<Record<string, any>> =
       await this.pulse.getSinkInputList()

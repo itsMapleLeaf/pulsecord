@@ -63,5 +63,5 @@ export const RootScreen = observer(function RootScreen({
     )
   }
 
-  return null
+  return <></>
 })

@@ -3,7 +3,7 @@ import { createDeferred } from "./deferred.js"
 
 export function debounce<Args extends unknown[], Result>(
   ms: number,
-  fn: (...args: Args) => Result | Promise<Result>,
+  callback: (...args: Args) => Result | Promise<Result>,
 ) {
   let timeout: NodeJS.Timeout | undefined
   let promise: Deferred<Result> | undefined
@@ -16,7 +16,7 @@ export function debounce<Args extends unknown[], Result>(
     }
     timeout = setTimeout(async () => {
       try {
-        promise!.resolve(await fn(...args))
+        promise!.resolve(await callback(...args))
       } catch (error) {
         promise!.reject(error)
       }

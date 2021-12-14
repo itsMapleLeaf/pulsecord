@@ -10,8 +10,12 @@ import "dotenv/config"
 import type { ExecaChildProcess } from "execa"
 import { execa } from "execa"
 import { autorun, computed } from "mobx"
-import { createInterface } from "readline"
-import { discordBotToken, discordGuildId, discordUserId } from "./env.js"
+import { createInterface } from "node:readline"
+import {
+  discordBotToken,
+  discordGuildId,
+  discordUserId,
+} from "./environment.js"
 import { raise } from "./helpers/errors.js"
 import type { Logger } from "./logger.js"
 import type { Store } from "./store.js"
