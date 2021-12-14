@@ -35,7 +35,7 @@ export class Store {
 
   async init() {
     await this.pulse.connect()
-    await Promise.all([this.fetchApplications()])
+    this.fetchApplications()
 
     this.pulse.on("event.sink_input.new", this.fetchApplications)
     this.pulse.on("event.sink_input.changed", this.fetchApplications)
@@ -44,30 +44,34 @@ export class Store {
 
   // eslint-disable-next-line unicorn/consistent-function-scoping
   fetchApplications = debounce(500, async () => {
-    const inputs: Array<Record<string, any>> =
-      await this.pulse.getSinkInputList()
+    try {
+      const inputs: Array<Record<string, any>> =
+        await this.pulse.getSinkInputList()
 
-    const sources = await Promise.all(
-      inputs.map(async (input) => {
-        const name =
-          input.properties.application?.name ??
-          input.properties.media?.name ??
-          input.name
+      const sources = await Promise.all(
+        inputs.map(async (input) => {
+          const name =
+            input.properties.application?.name ??
+            input.properties.media?.name ??
+            input.name
 
-        try {
-          const source = await this.pulse.getSinkInfo(input.sink)
+          try {
+            const source = await this.pulse.getSinkInfo(input.sink)
 
-          return {
-            name,
-            sinkInputIndex: input.index,
-            deviceName: source.monitor?.name ?? source.name,
+            return {
+              name,
+              sinkInputIndex: input.index,
+              deviceName: source.monitor?.name ?? source.name,
+            }
+          } catch (error) {
+            this.logger.errorStack(`Failed to get device for ${name}:`, error)
           }
-        } catch (error) {
-          this.logger.errorStack(`Failed to get device for ${name}:`, error)
-        }
-      }),
-    )
+        }),
+      )
 
-    this.sources.setItems(sources.filter(isTruthy))
+      this.sources.setItems(sources.filter(isTruthy))
+    } catch (error) {
+      this.logger.errorStack("Failed to fetch audio sources", error)
+    }
   })
 }

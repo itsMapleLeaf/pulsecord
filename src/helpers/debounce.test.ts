@@ -1,4 +1,5 @@
 import test from "ava"
+import { setTimeout } from "node:timers/promises"
 import { debounce } from "./debounce.js"
 
 test("debounce", async (t) => {
@@ -6,16 +7,18 @@ test("debounce", async (t) => {
 
   const debounced = debounce(100, () => {
     count += 1
-    return count
   })
 
   void debounced()
   void debounced()
   void debounced()
-  t.is(await debounced(), 1)
+  await setTimeout(150)
+  t.is(count, 1)
 
   void debounced()
+  await setTimeout(50)
   void debounced()
   void debounced()
-  t.is(await debounced(), 2)
+  await setTimeout(150)
+  t.is(count, 2)
 })
