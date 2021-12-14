@@ -10,10 +10,11 @@ import { Client } from "discord.js"
 import "dotenv/config"
 import type { ExecaChildProcess } from "execa"
 import { execa } from "execa"
-import { autorun, computed, makeObservable } from "mobx"
+import { autorun, computed } from "mobx"
 import { createInterface } from "node:readline"
 import { raise } from "./helpers/errors.js"
 import type { Logger } from "./logger.js"
+import { Setting } from "./setting.js"
 
 export class Bot {
   client = this.createClient()
@@ -26,6 +27,9 @@ export class Bot {
       sinkInputIndex: computed,
     })
   }
+  botToken = new Setting<string | undefined>("botToken", undefined)
+  userId = new Setting<string>("userId", "not set")
+  guildId = new Setting<string>("guildId", "not set")
 
   // these computed values makes it so that the autorun only runs
   // when these specific values change,
