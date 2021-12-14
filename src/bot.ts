@@ -12,13 +12,9 @@ import type { ExecaChildProcess } from "execa"
 import { execa } from "execa"
 import { autorun, computed, makeObservable } from "mobx"
 import { createInterface } from "node:readline"
-import {
-  discordBotToken,
-  discordGuildId,
-  discordUserId,
-} from "./environment.js"
 import { raise } from "./helpers/errors.js"
 import type { Logger } from "./logger.js"
+import { Setting } from "./setting.js"
 import type { Store } from "./store.js"
 
 export class Bot {
@@ -43,6 +39,10 @@ export class Bot {
   get sinkInputIndex() {
     return this.store.sources.current?.sinkInputIndex
   }
+  showNotifications = new Setting<boolean>("showNotifications", false)
+  botToken = new Setting<string | undefined>("botToken", undefined)
+  userId = new Setting<string>("userId", "not set")
+  guildId = new Setting<string>("guildId", "not set")
 
   async run() {
     autorun(() => {
@@ -52,7 +52,7 @@ export class Bot {
       }
     })
 
-    await this.client.login(discordBotToken)
+    await this.client.login(this.botToken.get())
   }
 
   private play(deviceName: string, sinkInputIndex: number) {
@@ -122,12 +122,12 @@ export class Bot {
 
   private joinVoiceChannel() {
     const guild =
-      this.client.guilds.cache.get(discordGuildId) ??
-      raise(`Couldn't find guild with id ${discordGuildId}`)
+      this.client.guilds.cache.get(this.guildId.get()) ??
+      raise(`Couldn't find guild with id ${this.guildId.get()}`)
 
     const user =
-      guild.members.cache.get(discordUserId) ??
-      raise(`Couldn't find user with id ${discordUserId}`)
+      guild.members.cache.get(this.userId.get()) ??
+      raise(`Couldn't find user with id ${this.userId.get()}`)
 
     if (!user.voice.channelId) return
 
@@ -150,7 +150,6 @@ export class Bot {
 
   // eslint-disable-next-line class-methods-use-this
   leave() {
-    getVoiceConnection(discordGuildId)?.disconnect()
-    this.client.destroy()
+    getVoiceConnection(this.guildId.get())?.disconnect()
   }
 }
