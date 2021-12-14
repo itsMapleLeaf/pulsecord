@@ -25,6 +25,7 @@
     "esbuild": "latest",
     "env-paths": "^3.0.0",
     "esbuild": "latest",
+    "env-paths": "^3.0.0",
     "esmo": "^0.13.0",
     "execa": "^6.0.0",
     "ink": "^3.2.0",
