@@ -33,7 +33,6 @@ export class Bot {
     return this.store.sources.current?.sinkInputIndex
   }
 
-  showNotifications = new Setting<boolean>("showNotifications", false)
   botToken = new Setting<string | undefined>("botToken", undefined)
   userId = new Setting<string>("userId", "not set")
   guildId = new Setting<string>("guildId", "not set")
