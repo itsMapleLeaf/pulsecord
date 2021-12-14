@@ -1,11 +1,8 @@
-import { action, makeObservable, observable } from "mobx"
 import { PulseAudio } from "pulseaudio.js"
-import { debounce } from "./helpers/debounce.js"
-import { isTruthy } from "./helpers/is-truthy.js"
-import type { Logger } from "./logger.js"
-import { Selection } from "./selection.js"
-
-type Screen = "main" | "selectSource"
+import { debounce } from "../helpers/debounce.js"
+import { isTruthy } from "../helpers/is-truthy.js"
+import type { Logger } from "../logger.js"
+import { Selection } from "../selection.js"
 
 type AudioSource = {
   name: string
@@ -13,21 +10,11 @@ type AudioSource = {
   deviceName: string
 }
 
-export class Store {
-  sources = new Selection<AudioSource>((item) => item.name)
+export class PulseStore {
+  sources = new Selection<AudioSource>((item) => item.sinkInputIndex.toString())
   pulse = new PulseAudio()
-  screen: Screen = "selectSource"
 
-  constructor(private logger: Logger) {
-    makeObservable(this, {
-      screen: observable,
-      setScreen: action.bound,
-    })
-  }
-
-  setScreen(screen: Screen) {
-    this.screen = screen
-  }
+  constructor(private logger: Logger) {}
 
   async disconnect() {
     await this.pulse.disconnect()
