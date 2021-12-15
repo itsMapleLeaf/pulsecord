@@ -10,17 +10,22 @@ import { Client } from "discord.js"
 import "dotenv/config"
 import type { ExecaChildProcess } from "execa"
 import { execa } from "execa"
-import { autorun } from "mobx"
+import { autorun, computed, makeObservable } from "mobx"
 import { createInterface } from "node:readline"
 import { raise } from "./helpers/errors.js"
 import type { Logger } from "./logger.js"
-import { Setting } from "./setting.js"
-import type { PulseStore } from "./stores/pulse-store.js"
 
 export class Bot {
   client = this.createClient()
   player = this.createPlayer()
   recorder?: ExecaChildProcess
+
+  constructor(private readonly logger: Logger, private readonly store: Store) {
+    makeObservable(this, {
+      deviceName: computed,
+      sinkInputIndex: computed,
+    })
+  }
 
   // these computed values makes it so that the autorun only runs
   // when these specific values change,
@@ -32,15 +37,6 @@ export class Bot {
   get sinkInputIndex() {
     return this.store.sources.current?.sinkInputIndex
   }
-
-  botToken = new Setting<string | undefined>("botToken", undefined)
-  userId = new Setting<string>("userId", "not set")
-  guildId = new Setting<string>("guildId", "not set")
-
-  constructor(
-    private readonly logger: Logger,
-    private readonly store: PulseStore,
-  ) {}
 
   async run() {
     autorun(() => {
@@ -148,6 +144,7 @@ export class Bot {
 
   // eslint-disable-next-line class-methods-use-this
   leave() {
-    getVoiceConnection(this.guildId.get())?.disconnect()
+    getVoiceConnection(discordGuildId)?.disconnect()
+    this.client.destroy()
   }
 }
