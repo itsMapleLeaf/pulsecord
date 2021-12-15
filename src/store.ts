@@ -14,7 +14,7 @@ type AudioSource = {
 }
 
 export class Store {
-  sources = new Selection<AudioSource>((item) => item.sinkInputIndex.toString())
+  sources = new Selection<AudioSource>((item) => item.name)
   pulse = new PulseAudio()
   screen: Screen = "selectSource"
 
