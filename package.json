@@ -62,7 +62,8 @@
       "./node_modules/@itsmapleleaf/configs/eslint"
     ],
     "rules": {
-      "unicorn/consistent-function-scoping": "off"
+      "unicorn/consistent-function-scoping": "off",
+      "unicorn/no-useless-undefined": "off"
     },
     "ignorePatterns": [
       "**/node_modules/**",
