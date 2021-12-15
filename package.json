@@ -29,6 +29,7 @@
     "execa": "^6.0.0",
     "ink": "^3.2.0",
     "ink-select-input": "^4.2.1",
+    "ink-text-input": "^4.0.2",
     "libsodium-wrappers": "^0.7.9",
     "mobx": "^6.3.8",
     "mobx-react-lite": "^3.2.2",
