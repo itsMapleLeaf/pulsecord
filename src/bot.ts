@@ -10,18 +10,22 @@ import { Client } from "discord.js"
 import "dotenv/config"
 import type { ExecaChildProcess } from "execa"
 import { execa } from "execa"
-import { autorun, computed } from "mobx"
+import { autorun, computed, makeObservable } from "mobx"
 import { createInterface } from "node:readline"
 import { raise } from "./helpers/errors.js"
 import type { Logger } from "./logger.js"
 import { Setting } from "./setting.js"
+import type { PulseStore } from "./stores/pulse-store.js"
 
 export class Bot {
   client = this.createClient()
   player = this.createPlayer()
   recorder?: ExecaChildProcess
 
-  constructor(private readonly logger: Logger, private readonly store: Store) {
+  constructor(
+    private readonly logger: Logger,
+    private readonly pulseStore: PulseStore,
+  ) {
     makeObservable(this, {
       deviceName: computed,
       sinkInputIndex: computed,
@@ -35,11 +39,11 @@ export class Bot {
   // when these specific values change,
   // and not when the whole list of sources or source object changes
   get deviceName() {
-    return this.store.sources.current?.deviceName
+    return this.pulseStore.sources.current?.deviceName
   }
 
   get sinkInputIndex() {
-    return this.store.sources.current?.sinkInputIndex
+    return this.pulseStore.sources.current?.sinkInputIndex
   }
 
   async run() {
@@ -148,7 +152,7 @@ export class Bot {
 
   // eslint-disable-next-line class-methods-use-this
   leave() {
-    getVoiceConnection(discordGuildId)?.disconnect()
+    getVoiceConnection(this.guildId.get())?.disconnect()
     this.client.destroy()
   }
 }
