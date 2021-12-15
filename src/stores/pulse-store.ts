@@ -22,6 +22,7 @@ export class PulseStore {
 
   async init() {
     await this.pulse.connect()
+    this.fetchApplications()
 
     this.pulse.on("event.sink_input.new", this.fetchApplications)
     this.pulse.on("event.sink_input.changed", this.fetchApplications)
