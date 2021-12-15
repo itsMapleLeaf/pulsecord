@@ -1,4 +1,5 @@
 import {
+  AudioPlayerStatus,
   createAudioPlayer,
   createAudioResource,
   getVoiceConnection,
@@ -9,7 +10,7 @@ import { Client } from "discord.js"
 import "dotenv/config"
 import type { ExecaChildProcess } from "execa"
 import { execa } from "execa"
-import { autorun, computed } from "mobx"
+import { autorun, computed, makeObservable } from "mobx"
 import { createInterface } from "node:readline"
 import {
   discordBotToken,
@@ -25,49 +26,58 @@ export class Bot {
   player = this.createPlayer()
   recorder?: ExecaChildProcess
 
-  constructor(private readonly logger: Logger, private readonly store: Store) {}
+  constructor(private readonly logger: Logger, private readonly store: Store) {
+    makeObservable(this, {
+      deviceName: computed,
+      sinkInputIndex: computed,
+    })
+  }
+
+  // these computed values makes it so that the autorun only runs
+  // when these specific values change,
+  // and not when the whole list of sources or source object changes
+  get deviceName() {
+    return this.store.sources.current?.deviceName
+  }
+
+  get sinkInputIndex() {
+    return this.store.sources.current?.sinkInputIndex
+  }
 
   async run() {
-    // these computed values makes it so that the autorun only runs
-    // when these specific values change,
-    // and not when the whole list of sources or source object changes
-    const deviceName = computed(() => {
-      return this.store.sources.current?.deviceName
-    })
-
-    const sinkInputIndex = computed(() => {
-      return this.store.sources.current?.sinkInputIndex
-    })
-
     autorun(() => {
-      this.recorder?.kill()
-
-      if (!deviceName.get()) return
-      if (!sinkInputIndex.get()) return
-
-      this.recorder = execa(
-        "parec",
-        [
-          `--device=${deviceName.get()}`,
-          `--monitor-stream=${sinkInputIndex.get()}`,
-          "--format=s16le",
-          "--rate=48000",
-          "--verbose",
-        ],
-        { reject: false },
-      ).on("error", (error) => this.logger.errorStack("parec error", error))
-
-      const lineReader = createInterface(this.recorder.stderr!)
-      lineReader.on("line", (line) => this.logger.info("[parec]", line))
-
-      this.player.play(
-        createAudioResource(this.recorder.stdout!, {
-          inputType: StreamType.Raw,
-        }),
-      )
+      const { deviceName, sinkInputIndex } = this
+      if (deviceName && sinkInputIndex !== undefined) {
+        this.play(deviceName, sinkInputIndex)
+      }
     })
 
     await this.client.login(discordBotToken)
+  }
+
+  private play(deviceName: string, sinkInputIndex: number) {
+    this.recorder?.kill()
+
+    this.recorder = execa(
+      "parec",
+      [
+        `--device=${deviceName}`,
+        `--monitor-stream=${sinkInputIndex}`,
+        "--format=s16le",
+        "--rate=48000",
+        "--verbose",
+      ],
+      { reject: false },
+    ).on("error", (error) => this.logger.errorStack("parec error", error))
+
+    const lineReader = createInterface(this.recorder.stderr!)
+    lineReader.on("line", (line) => this.logger.info("[parec]", line))
+
+    this.player.play(
+      createAudioResource(this.recorder.stdout!, {
+        inputType: StreamType.Raw,
+      }),
+    )
   }
 
   private createPlayer() {
@@ -75,6 +85,16 @@ export class Bot {
 
     player.on("stateChange", (_, state) => {
       this.logger.info(`player state: ${state.status}`)
+
+      setTimeout(() => {
+        if (
+          state.status === AudioPlayerStatus.Idle &&
+          this.deviceName &&
+          this.sinkInputIndex !== undefined
+        ) {
+          this.play(this.deviceName, this.sinkInputIndex)
+        }
+      }, 2000)
     })
 
     player.on("error", (error) => {
@@ -131,5 +151,6 @@ export class Bot {
   // eslint-disable-next-line class-methods-use-this
   leave() {
     getVoiceConnection(discordGuildId)?.disconnect()
+    this.client.destroy()
   }
 }
