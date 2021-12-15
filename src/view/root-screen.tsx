@@ -6,6 +6,7 @@ import type { PulseStore } from "../stores/pulse-store.js"
 import type { RouterStore } from "../stores/router-store.js"
 import { AudioSourceMenu } from "./application-menu.jsx"
 import { MenuScreenLayout } from "./menu-screen-layout.jsx"
+import { SettingsMenu } from "./settings-menu.js"
 
 export const RootScreen = observer(function RootScreen({
   pulseStore,
@@ -76,7 +77,7 @@ export const RootScreen = observer(function RootScreen({
       <MenuScreenLayout>
         <MenuScreenLayout.Title>Settings</MenuScreenLayout.Title>
         <MenuScreenLayout.ListSection>
-          <Text>:)</Text>
+          <SettingsMenu routerStore={routerStore} />
         </MenuScreenLayout.ListSection>
       </MenuScreenLayout>
     )
