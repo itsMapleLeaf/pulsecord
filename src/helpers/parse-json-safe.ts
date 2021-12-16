@@ -11,5 +11,5 @@ export function parseJsonSafe(json: string): Json | undefined {
 export function checkJsonIsRecord(
   json: Json | undefined,
 ): json is Record<string, Json> {
-  return json != null && typeof json === "object" && !Array.isArray(json)
+  return json != undefined && typeof json === "object" && !Array.isArray(json)
 }
