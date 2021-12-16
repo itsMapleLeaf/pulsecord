@@ -12,7 +12,8 @@
     "lint": "eslint --ext js,ts,tsx .",
     "lint-fix": "pnpm lint -- --fix",
     "format": "prettier --write .",
-    "test": "ava"
+    "test": "ava",
+    "typecheck": "tsc --noEmit"
   },
   "resolutions": {
     "esbuild": "latest"
