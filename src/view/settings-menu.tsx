@@ -1,7 +1,5 @@
 import { Newline, Text } from "ink"
 import React, { useState } from "react"
-import { Setting } from "../setting"
-import type { RouterStore } from "../stores/router-store"
 import {
   ButtonInput,
   CheckboxInput,
@@ -9,14 +7,11 @@ import {
   LabeledTextInput,
 } from "./focusable-list"
 import { MenuScreenLayout } from "./menu-screen-layout"
+import { useStores } from "./store-context.js"
 
-export function SettingsMenu({ routerStore }: { routerStore: RouterStore }) {
-  const botToken = new Setting<string>("botToken", "")
-  const userId = new Setting<string>("userId", "")
-  const notify = new Setting<boolean>("notify", false)
-  const guildId = new Setting<string>("guildId", "")
-
-  const [changed, setChanged] = useState(0)
+export function SettingsMenu() {
+  const stores = useStores()
+  const [changeCount, setChangeCount] = useState(0)
 
   return (
     <>
@@ -26,44 +21,44 @@ export function SettingsMenu({ routerStore }: { routerStore: RouterStore }) {
             label="Bot Token"
             sensitive
             onChange={(value) => {
-              botToken.set(value)
-              setChanged(changed + 1)
+              stores.botStore.botToken.set(value)
+              setChangeCount(changeCount + 1)
             }}
-            value={botToken.get()}
+            value={stores.botStore.botToken.get() ?? ""}
           />
           <LabeledTextInput
             label="User ID"
             onChange={(value) => {
-              userId.set(value)
-              setChanged(changed + 1)
+              stores.botStore.userId.set(value)
+              setChangeCount(changeCount + 1)
             }}
-            value={userId.get()}
+            value={stores.botStore.userId.get()}
           />
           <LabeledTextInput
             label="Guild ID"
             onChange={(value) => {
-              guildId.set(value)
-              setChanged(changed + 1)
+              stores.botStore.guildId.set(value)
+              setChangeCount(changeCount + 1)
             }}
-            value={guildId.get()}
+            value={stores.botStore.guildId.get()}
           />
           <CheckboxInput
-            label="Notify on source change"
-            value={notify.get()}
+            label="Notify on source change (not working yet)"
+            value={stores.notificationStore.enabled.get()}
             onChange={(value) => {
-              notify.set(value)
-              setChanged(changed + 1)
+              stores.notificationStore.enabled.set(value)
+              setChangeCount(changeCount + 1)
             }}
           />
           <Newline count={1} />
           <ButtonInput
-            onPress={() => routerStore.setScreen("main")}
+            onPress={() => stores.routerStore.setScreen("main")}
             label="Back"
           />
         </FocusableList>
-        {!!changed && (
+        {changeCount > 0 && (
           <Text color="green">
-            Settings saved! {changed > 1 && `(${changed})`}
+            Settings saved! {changeCount > 1 && `(${changeCount})`}
           </Text>
         )}
       </MenuScreenLayout.Section>

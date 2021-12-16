@@ -12,12 +12,12 @@ import type { ExecaChildProcess } from "execa"
 import { execa } from "execa"
 import { autorun, computed, makeObservable } from "mobx"
 import { createInterface } from "node:readline"
-import { raise } from "./helpers/errors.js"
-import type { Logger } from "./logger.js"
-import { Setting } from "./setting.js"
-import type { PulseStore } from "./stores/pulse-store.js"
+import { raise } from "../helpers/errors.js"
+import type { Logger } from "../logger.js"
+import { Setting } from "../setting.js"
+import type { PulseStore } from "../stores/pulse-store.js"
 
-export class Bot {
+export class BotStore {
   client = this.createClient()
   player = this.createPlayer()
   recorder?: ExecaChildProcess

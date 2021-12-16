@@ -1,32 +1,28 @@
 import { Text } from "ink"
 import { observer } from "mobx-react-lite"
 import * as React from "react"
-import { SelectInput } from "../ink-select-input.js"
-import type { PulseStore } from "../stores/pulse-store.js"
-import type { RouterStore } from "../stores/router-store.js"
 import { AudioSourceMenu } from "./application-menu.jsx"
+import { MainMenu } from "./main-menu"
 import { MenuScreenLayout } from "./menu-screen-layout.jsx"
 import { SettingsMenu } from "./settings-menu.js"
+import { useStores } from "./store-context.js"
 
 export const RootScreen = observer(function RootScreen({
-  pulseStore,
-  routerStore,
   onQuit,
 }: {
-  pulseStore: PulseStore
-  routerStore: RouterStore
   onQuit: () => void
 }) {
-  if (routerStore.screen === "main") {
+  const stores = useStores()
+  if (stores.routerStore.screen === "main") {
     return (
       <MenuScreenLayout>
         <MenuScreenLayout.Title>
           PulseCord
-          {pulseStore.sources.current ? (
+          {stores.pulseStore.sources.current ? (
             <Text color="gray" bold={false}>
               {" - "}Playing from{" "}
               <Text bold color="white">
-                {pulseStore.sources.current?.name}
+                {stores.pulseStore.sources.current?.name}
               </Text>
             </Text>
           ) : (
@@ -36,48 +32,29 @@ export const RootScreen = observer(function RootScreen({
           )}
         </MenuScreenLayout.Title>
         <MenuScreenLayout.ListSection>
-          <SelectInput
-            items={[
-              {
-                key: "selectApplication",
-                label: "Select Audio Source",
-                value: () => routerStore.setScreen("selectSource"),
-              },
-              {
-                key: "settings",
-                label: "Settings",
-                value: () => routerStore.setScreen("settings"),
-              },
-              {
-                key: "quit",
-                label: "Quit",
-                value: onQuit,
-              },
-            ]}
-            onSelect={(item) => item.value()}
-          />
+          <MainMenu onQuit={onQuit} />
         </MenuScreenLayout.ListSection>
       </MenuScreenLayout>
     )
   }
 
-  if (routerStore.screen === "selectSource") {
+  if (stores.routerStore.screen === "selectSource") {
     return (
       <MenuScreenLayout>
         <MenuScreenLayout.Title>Select Audio Source</MenuScreenLayout.Title>
         <MenuScreenLayout.ListSection>
-          <AudioSourceMenu routerStore={routerStore} pulseStore={pulseStore} />
+          <AudioSourceMenu />
         </MenuScreenLayout.ListSection>
       </MenuScreenLayout>
     )
   }
 
-  if (routerStore.screen === "settings") {
+  if (stores.routerStore.screen === "settings") {
     return (
       <MenuScreenLayout>
         <MenuScreenLayout.Title>Settings</MenuScreenLayout.Title>
         <MenuScreenLayout.ListSection>
-          <SettingsMenu routerStore={routerStore} />
+          <SettingsMenu />
         </MenuScreenLayout.ListSection>
       </MenuScreenLayout>
     )

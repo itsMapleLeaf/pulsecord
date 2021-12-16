@@ -1,27 +1,21 @@
 import { observer } from "mobx-react-lite"
 import React from "react"
 import { SelectInput } from "../ink-select-input.js"
-import type { PulseStore } from "../stores/pulse-store.js"
-import type { RouterStore } from "../stores/router-store.js"
+import { useStores } from "./store-context.js"
 
-export const AudioSourceMenu = observer(function AudioSourceMenu({
-  pulseStore,
-  routerStore,
-}: {
-  pulseStore: PulseStore
-  routerStore: RouterStore
-}) {
+export const AudioSourceMenu = observer(function AudioSourceMenu() {
+  const stores = useStores()
   return (
     <SelectInput
-      items={pulseStore.sources.items.map((input) => ({
+      items={stores.pulseStore.sources.items.map((input) => ({
         key: String(input.sinkInputIndex),
         value: input,
         label: input.name,
       }))}
-      initialIndex={pulseStore.sources.currentIndex}
+      initialIndex={stores.pulseStore.sources.currentIndex}
       onSelect={(item) => {
-        pulseStore.sources.setCurrent(item.value)
-        routerStore.setScreen("main")
+        stores.pulseStore.sources.setCurrent(item.value)
+        stores.routerStore.setScreen("main")
       }}
     />
   )
