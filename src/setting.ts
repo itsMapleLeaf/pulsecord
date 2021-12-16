@@ -14,12 +14,12 @@ if (!existsSync(configFile)) {
   await writeFile(configFile, JSON.stringify({}, undefined, 2))
 }
 
-function getSetting<T>(key: string) {
+function getSetting<T>(key: string): T | undefined {
   const json = parseJsonSafe(readFileSync(configFile, "utf8"))
   if (!checkJsonIsRecord(json)) {
     return undefined
   }
-  return json[key] as T | undefined
+  return json[key] as unknown as T
 }
 
 function writeSetting(key: string, value: Json) {
