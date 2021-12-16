@@ -1,5 +1,5 @@
 import envPaths from "env-paths"
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from "fs"
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import { checkJsonIsRecord, parseJsonSafe } from "./helpers/parse-json-safe"
 import type { Json } from "./helpers/types"
 
@@ -10,7 +10,7 @@ export class Setting<Type extends Json | undefined> {
   constructor(private settingKey: string, private defaultValue: Type) {
     mkdirSync(this.configDir, { recursive: true })
     if (!existsSync(this.configFile)) {
-      writeFileSync(this.configFile, JSON.stringify({}, null, 2))
+      writeFileSync(this.configFile, JSON.stringify({}, undefined, 2))
     }
   }
 
@@ -37,6 +37,6 @@ export class Setting<Type extends Json | undefined> {
 
     fileRecord[this.settingKey] = value
 
-    writeFileSync(this.configFile, JSON.stringify(fileRecord, null, 2))
+    writeFileSync(this.configFile, JSON.stringify(fileRecord, undefined, 2))
   }
 }
