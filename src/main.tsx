@@ -16,5 +16,9 @@ const view = render(
 )
 await view.waitUntilExit()
 
-stores.botStore.leave()
+stores.botStore.stop()
 await stores.pulseStore.disconnect()
+
+// ensure the program actually quits for real
+// eslint-disable-next-line unicorn/no-process-exit
+process.exit()
