@@ -10,7 +10,13 @@ import { Client } from "discord.js"
 import "dotenv/config"
 import type { ExecaChildProcess } from "execa"
 import { execa } from "execa"
-import { autorun, computed, makeObservable } from "mobx"
+import {
+  autorun,
+  computed,
+  makeObservable,
+  observable,
+  runInAction,
+} from "mobx"
 import { createInterface } from "node:readline"
 import { raise } from "../helpers/errors.js"
 import type { Logger } from "../logger.js"
@@ -20,7 +26,11 @@ import type { PulseStore } from "../stores/pulse-store.js"
 export class BotStore {
   client = this.createClient()
   player = this.createPlayer()
-  recorder?: ExecaChildProcess
+  botToken = new Setting<string>("botToken", "")
+  userId = new Setting<string>("userId", "")
+  guildId = new Setting<string>("guildId", "")
+  recorder?: ExecaChildProcess = undefined
+  isReady = false
 
   constructor(
     private readonly logger: Logger,
@@ -29,6 +39,7 @@ export class BotStore {
     makeObservable(this, {
       deviceName: computed,
       sinkInputIndex: computed,
+      isReady: observable,
     })
 
     autorun(() => {
@@ -45,25 +56,33 @@ export class BotStore {
           .login(token)
           .catch((error) => this.logger.errorStack("login error", error))
       }
+
+      logger.info("Bot token:", token)
+    })
+
+    autorun(() => {
+      if (this.guildId.value && this.botToken.value && this.isReady) {
+        this.joinVoiceChannel().catch((error) => {
+          this.logger.errorStack("Voice connection error", error)
+        })
+      }
     })
   }
-
-  botToken = new Setting<string>("botToken", "")
-  userId = new Setting<string>("userId", "not set")
-  guildId = new Setting<string>("guildId", "not set")
 
   // these computed values makes it so that the autorun only runs
   // when these specific values change,
   // and not when the whole list of sources or source object changes
   get deviceName() {
-    return this.pulseStore.sources.current?.deviceName
+    return this.pulseStore.currentAudioSource?.deviceName
   }
 
   get sinkInputIndex() {
-    return this.pulseStore.sources.current?.sinkInputIndex
+    return this.pulseStore.currentAudioSource?.sinkInputIndex
   }
 
   private play(deviceName: string, sinkInputIndex: number) {
+    this.logger.info("Playing:", { deviceName, sinkInputIndex })
+
     this.recorder?.kill()
 
     this.recorder = execa(
@@ -73,7 +92,6 @@ export class BotStore {
         `--monitor-stream=${sinkInputIndex}`,
         "--format=s16le",
         "--rate=48000",
-        "--verbose",
       ],
       { reject: false },
     ).on("error", (error) => this.logger.errorStack("parec error", error))
@@ -102,7 +120,7 @@ export class BotStore {
         ) {
           this.play(this.deviceName, this.sinkInputIndex)
         }
-      }, 2000)
+      }, 1000)
     })
 
     player.on("error", (error) => {
@@ -117,24 +135,30 @@ export class BotStore {
       intents: ["GUILDS", "GUILD_VOICE_STATES"],
     })
 
-    client.on("ready", () => {
-      this.joinVoiceChannel()
-    })
-
     client.on("error", (error) => {
       this.logger.errorStack("Discord client error", error)
+    })
+
+    client.on("ready", () => {
+      this.logger.info("Discord client ready")
+
+      runInAction(() => {
+        this.isReady = true
+      })
     })
 
     return client
   }
 
-  private joinVoiceChannel() {
+  private async joinVoiceChannel() {
     const guild =
       this.client.guilds.cache.get(this.guildId.value) ??
+      (await this.client.guilds.fetch(this.guildId.value)) ??
       raise(`Couldn't find guild with id ${this.guildId.value}`)
 
     const user =
       guild.members.cache.get(this.userId.value) ??
+      (await guild.members.fetch(this.userId.value)) ??
       raise(`Couldn't find user with id ${this.userId.value}`)
 
     if (!user.voice.channelId) return
@@ -157,8 +181,10 @@ export class BotStore {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  leave() {
+  stop() {
     getVoiceConnection(this.guildId.value)?.disconnect()
+    this.player.stop(true)
+    this.recorder?.kill()
     this.client.destroy()
   }
 }

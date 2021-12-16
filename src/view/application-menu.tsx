@@ -7,14 +7,14 @@ export const AudioSourceMenu = observer(function AudioSourceMenu() {
   const stores = useStores()
   return (
     <SelectInput
-      items={stores.pulseStore.sources.items.map((input) => ({
+      items={stores.pulseStore.selection.sources.map((input) => ({
         key: String(input.sinkInputIndex),
         value: input,
         label: input.name,
       }))}
-      initialIndex={stores.pulseStore.sources.currentIndex}
+      initialIndex={stores.pulseStore.selection.currentIndex}
       onSelect={(item) => {
-        stores.pulseStore.sources.setCurrent(item.value)
+        stores.pulseStore.selection.setCurrentSource(item.value)
         stores.routerStore.setScreen("main")
       }}
     />

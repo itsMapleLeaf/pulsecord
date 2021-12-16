@@ -1,8 +1,8 @@
+import { makeAutoObservable, toJS } from "mobx"
 import { PulseAudio } from "pulseaudio.js"
 import { debounce } from "../helpers/debounce.js"
 import { isTruthy } from "../helpers/is-truthy.js"
 import type { Logger } from "../logger.js"
-import { Selection } from "../selection.js"
 
 type AudioSource = {
   name: string
@@ -10,11 +10,58 @@ type AudioSource = {
   deviceName: string
 }
 
-export class PulseStore {
-  sources = new Selection<AudioSource>((item) => item.sinkInputIndex.toString())
-  pulse = new PulseAudio()
+class AudioSourceSelection {
+  sourceMap = new Map<number, AudioSource>()
+  currentSinkInputIndex?: number = undefined
+  currentName?: string = undefined
 
-  constructor(private logger: Logger) {}
+  constructor(readonly logger: Logger) {
+    makeAutoObservable(this, { logger: false })
+  }
+
+  get sources() {
+    return [...this.sourceMap.values()]
+  }
+
+  setSources(sources: AudioSource[]) {
+    const newSourceMap = new Map<number, AudioSource>()
+    for (const source of sources) {
+      newSourceMap.set(
+        source.sinkInputIndex,
+        this.sourceMap.get(source.sinkInputIndex) ?? source,
+      )
+    }
+    this.sourceMap = newSourceMap
+  }
+
+  setCurrentSource(source: AudioSource) {
+    this.currentName = source.name
+    this.currentSinkInputIndex = source.sinkInputIndex
+  }
+
+  get currentSource() {
+    const source =
+      this.sources.find(
+        (source) => source.sinkInputIndex === this.currentSinkInputIndex,
+      ) ?? this.sources.find((source) => source.name === this.currentName)
+
+    this.logger.info("current source:", toJS(source))
+
+    return source
+  }
+
+  get currentIndex() {
+    return this.currentSource
+      ? Math.max(this.sources.indexOf(this.currentSource), 0)
+      : undefined
+  }
+}
+
+export class PulseStore {
+  pulse = new PulseAudio()
+  selection = new AudioSourceSelection(this.logger)
+
+  constructor(readonly logger: Logger) {}
 
   async init() {
     await this.pulse.connect()
@@ -27,6 +74,10 @@ export class PulseStore {
 
   async disconnect() {
     await this.pulse.disconnect()
+  }
+
+  get currentAudioSource() {
+    return this.selection.currentSource
   }
 
   // eslint-disable-next-line unicorn/consistent-function-scoping
@@ -56,7 +107,7 @@ export class PulseStore {
         }),
       )
 
-      this.sources.setItems(sources.filter(isTruthy))
+      this.selection.setSources(sources.filter(isTruthy))
     } catch (error) {
       this.logger.errorStack("Failed to fetch audio sources", error)
     }
