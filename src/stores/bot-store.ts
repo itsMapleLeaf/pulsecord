@@ -30,8 +30,25 @@ export class BotStore {
       deviceName: computed,
       sinkInputIndex: computed,
     })
+
+    autorun(() => {
+      const { deviceName, sinkInputIndex } = this
+      if (deviceName && sinkInputIndex !== undefined) {
+        this.play(deviceName, sinkInputIndex)
+      }
+    })
+
+    autorun(() => {
+      const token = this.botToken.value
+      if (token) {
+        this.client
+          .login(token)
+          .catch((error) => this.logger.errorStack("login error", error))
+      }
+    })
   }
-  botToken = new Setting<string | undefined>("botToken", undefined)
+
+  botToken = new Setting<string>("botToken", "")
   userId = new Setting<string>("userId", "not set")
   guildId = new Setting<string>("guildId", "not set")
 
@@ -44,17 +61,6 @@ export class BotStore {
 
   get sinkInputIndex() {
     return this.pulseStore.sources.current?.sinkInputIndex
-  }
-
-  async run() {
-    autorun(() => {
-      const { deviceName, sinkInputIndex } = this
-      if (deviceName && sinkInputIndex !== undefined) {
-        this.play(deviceName, sinkInputIndex)
-      }
-    })
-
-    await this.client.login(this.botToken.get())
   }
 
   private play(deviceName: string, sinkInputIndex: number) {
@@ -124,12 +130,12 @@ export class BotStore {
 
   private joinVoiceChannel() {
     const guild =
-      this.client.guilds.cache.get(this.guildId.get()) ??
-      raise(`Couldn't find guild with id ${this.guildId.get()}`)
+      this.client.guilds.cache.get(this.guildId.value) ??
+      raise(`Couldn't find guild with id ${this.guildId.value}`)
 
     const user =
-      guild.members.cache.get(this.userId.get()) ??
-      raise(`Couldn't find user with id ${this.userId.get()}`)
+      guild.members.cache.get(this.userId.value) ??
+      raise(`Couldn't find user with id ${this.userId.value}`)
 
     if (!user.voice.channelId) return
 
@@ -152,7 +158,7 @@ export class BotStore {
 
   // eslint-disable-next-line class-methods-use-this
   leave() {
-    getVoiceConnection(this.guildId.get())?.disconnect()
+    getVoiceConnection(this.guildId.value)?.disconnect()
     this.client.destroy()
   }
 }

@@ -6,7 +6,6 @@ import { createStores, StoresProvider } from "./view/store-context.js"
 const stores = createStores()
 
 await stores.pulseStore.init()
-await stores.botStore.run()
 
 const view = render(
   <Box borderStyle="single" borderColor="blue" paddingX={1} paddingY={1}>

@@ -16,10 +16,6 @@ export class PulseStore {
 
   constructor(private logger: Logger) {}
 
-  async disconnect() {
-    await this.pulse.disconnect()
-  }
-
   async init() {
     await this.pulse.connect()
     this.fetchApplications()
@@ -27,6 +23,10 @@ export class PulseStore {
     this.pulse.on("event.sink_input.new", this.fetchApplications)
     this.pulse.on("event.sink_input.changed", this.fetchApplications)
     this.pulse.on("event.sink_input.remove", this.fetchApplications)
+  }
+
+  async disconnect() {
+    await this.pulse.disconnect()
   }
 
   // eslint-disable-next-line unicorn/consistent-function-scoping

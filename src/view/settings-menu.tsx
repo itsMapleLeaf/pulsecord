@@ -1,4 +1,5 @@
 import { Newline, Text } from "ink"
+import { observer } from "mobx-react-lite"
 import React, { useState } from "react"
 import {
   ButtonInput,
@@ -9,7 +10,7 @@ import {
 import { MenuScreenLayout } from "./menu-screen-layout"
 import { useStores } from "./store-context.js"
 
-export function SettingsMenu() {
+export const SettingsMenu = observer(function SettingsMenu() {
   const stores = useStores()
   const [changeCount, setChangeCount] = useState(0)
 
@@ -24,7 +25,7 @@ export function SettingsMenu() {
               stores.botStore.botToken.set(value)
               setChangeCount(changeCount + 1)
             }}
-            value={stores.botStore.botToken.get() ?? ""}
+            value={stores.botStore.botToken.value ?? ""}
           />
           <LabeledTextInput
             label="User ID"
@@ -32,7 +33,7 @@ export function SettingsMenu() {
               stores.botStore.userId.set(value)
               setChangeCount(changeCount + 1)
             }}
-            value={stores.botStore.userId.get()}
+            value={stores.botStore.userId.value}
           />
           <LabeledTextInput
             label="Guild ID"
@@ -40,11 +41,11 @@ export function SettingsMenu() {
               stores.botStore.guildId.set(value)
               setChangeCount(changeCount + 1)
             }}
-            value={stores.botStore.guildId.get()}
+            value={stores.botStore.guildId.value}
           />
           <CheckboxInput
             label="Notify on source change (not working yet)"
-            value={stores.notificationStore.enabled.get()}
+            value={stores.notificationStore.enabled.value}
             onChange={(value) => {
               stores.notificationStore.enabled.set(value)
               setChangeCount(changeCount + 1)
@@ -64,4 +65,4 @@ export function SettingsMenu() {
       </MenuScreenLayout.Section>
     </>
   )
-}
+})
