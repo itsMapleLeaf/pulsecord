@@ -6,26 +6,13 @@
   "author": "itsMapleLeaf",
   "license": "MIT",
   "type": "module",
-  "scripts": {
-    "dev": "nodemon --exec esmo --enable-source-maps --no-warnings src/main.tsx",
-    "start": "esmo --enable-source-maps --no-warnings src/main.tsx",
-    "lint": "eslint --ext js,ts,tsx .",
-    "lint-fix": "pnpm lint -- --fix",
-    "format": "prettier --write .",
-    "test": "ava",
-    "typecheck": "tsc --noEmit"
-  },
-  "resolutions": {
-    "esbuild": "latest"
-  },
   "dependencies": {
     "@discordjs/voice": "^0.7.5",
     "@types/react": "^17.0.37",
     "discord.js": "^13.3.1",
     "dotenv": "^10.0.0",
-    "esbuild": "latest",
     "env-paths": "^3.0.0",
-    "esmo": "^0.13.0",
+    "esbuild": "latest",
     "execa": "^6.0.0",
     "ink": "^3.2.0",
     "ink-select-input": "^4.2.1",
@@ -44,6 +31,7 @@
     "@typescript-eslint/eslint-plugin": "^5.7.0",
     "@typescript-eslint/parser": "^5.7.0",
     "ava": "^4.0.0-rc.1",
+    "chokidar-cli": "^3.0.0",
     "esbuild-node-loader": "^0.6.3",
     "eslint": "^8.4.1",
     "eslint-config-prettier": "^8.3.0",
@@ -55,6 +43,7 @@
     "eslint-plugin-unicorn": "^39.0.0",
     "nodemon": "^2.0.15",
     "prettier": "^2.5.1",
+    "tsup-node": "^0.1.0",
     "typescript": "^4.5.4"
   },
   "prettier": "@itsmapleleaf/configs/prettier",
@@ -83,5 +72,6 @@
     "files": [
       "src/**/*.test.{ts,tsx}"
     ]
-  }
+  },
+  "bin": "./bin/pulsecord.js"
 }
