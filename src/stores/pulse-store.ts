@@ -58,10 +58,16 @@ class AudioSourceSelection {
 }
 
 export class PulseStore {
-  pulse = new PulseAudio()
-  selection = new AudioSourceSelection(this.logger)
+  pulse: PulseAudio
+  selection: AudioSourceSelection
+  logger: Logger
 
-  constructor(readonly logger: Logger) {}
+  constructor(logger: Logger) {
+    // constructor shorthands break for some reason
+    this.logger = logger
+    this.pulse = new PulseAudio()
+    this.selection = new AudioSourceSelection(this.logger)
+  }
 
   async init() {
     await this.pulse.connect()
