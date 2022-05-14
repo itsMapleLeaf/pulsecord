@@ -2,12 +2,16 @@ plays pulseaudio output through a discord bot
 
 screen sharing on linux still doesn't have audio; this is my cursed workaround :)
 
-## Install
+## Install globally
 
-1. Run `pnpm install`
-1. Run `make install`
+```bash
+pnpm install
+pnpm ln -g
+```
 
 ## Development
 
-1. Ensure `make` is installed
-1. Run `make dev`
+```bash
+pnpm install
+pnpm run dev
+```
