@@ -6,6 +6,26 @@
   "author": "itsMapleLeaf",
   "license": "MIT",
   "type": "module",
+  "main": "./dist/main.js",
+  "bin": "./dist/main.js",
+  "scripts": {
+    "build": "tsup-node src/main.tsx",
+    "start": "pnpm run build && node .",
+    "dev": "run-p dev:*",
+    "dev:tsup": "tsup-node src/main.tsx --watch",
+    "dev:nodemon": "nodemon .",
+    "lint": "eslint --ext js,ts,tsx .",
+    "format": "prettier --write .",
+    "test": "ava",
+    "typecheck": "tsc --noEmit"
+  },
+  "tsup": {
+    "target": "node16",
+    "format": [
+      "esm"
+    ],
+    "sourcemap": true
+  },
   "dependencies": {
     "@discordjs/voice": "^0.7.5",
     "@types/react": "^17.0.37",
@@ -42,8 +62,9 @@
     "eslint-plugin-react-hooks": "^4.3.0",
     "eslint-plugin-unicorn": "^39.0.0",
     "nodemon": "^2.0.15",
+    "npm-run-all": "^4.1.5",
     "prettier": "^2.5.1",
-    "tsup-node": "^0.1.0",
+    "tsup": "^5.12.7",
     "typescript": "^4.5.4"
   },
   "prettier": "@itsmapleleaf/configs/prettier",
@@ -72,6 +93,5 @@
     "files": [
       "src/**/*.test.{ts,tsx}"
     ]
-  },
-  "bin": "./bin/pulsecord.js"
+  }
 }

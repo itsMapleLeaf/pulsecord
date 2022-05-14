@@ -1,3 +1,4 @@
+#!/usr/bin/env -S node --enable-source-maps
 import { Box, render } from "ink"
 import * as React from "react"
 import { RootScreen } from "./view/root-screen.js"
