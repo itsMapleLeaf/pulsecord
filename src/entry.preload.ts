@@ -1,5 +1,5 @@
 import { contextBridge } from "electron"
-import { createIpcRendererApi } from "./typed-ipc"
+import { createIpcRendererApi } from "./electron/typed-ipc"
 
 const api = createIpcRendererApi()
 contextBridge.exposeInMainWorld("typedIpc", api)

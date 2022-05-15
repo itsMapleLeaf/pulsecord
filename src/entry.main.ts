@@ -1,9 +1,9 @@
 import { app, dialog } from "electron"
 import { PulseAudio } from "pulseaudio.js"
-import { getErrorStack } from "./errors"
-import { typedIpcMain } from "./ipc-main-api"
-import { getAudioSources } from "./pulseaudio"
-import { createWindow } from "./window"
+import { getErrorStack } from "./common/errors"
+import { typedIpcMain } from "./electron/ipc-main-api"
+import { createWindow } from "./electron/window"
+import { getAudioSources } from "./pulseaudio/audio-source"
 
 app.on("ready", async () => {
   try {

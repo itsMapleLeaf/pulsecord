@@ -1,5 +1,5 @@
 import type { IpcMainEvent, IpcRendererEvent, WebContents } from "electron"
-import type { AudioSource } from "./pulseaudio"
+import type { AudioSource } from "../pulseaudio/audio-source"
 
 type IpcRendererEventMap = {
   audioSources: [sources: AudioSource[]]

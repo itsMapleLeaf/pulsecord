@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import type { AudioSource } from "./pulseaudio"
+import type { AudioSource } from "./pulseaudio/audio-source"
 
 export function Root() {
   const [audioSources, setAudioSources] = useState<AudioSource[]>([])
