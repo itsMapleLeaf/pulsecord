@@ -4,4 +4,3 @@ build
 .vscode
 dist
 coverage
-app/tailwind.css
