@@ -1,24 +1,38 @@
-import { useLoaderData } from "@remix-run/react"
-import { json } from "@remix-run/server-runtime"
-import { app } from "electron"
+import type { LiveDataFunction } from "@remix-electron/renderer"
+import { useLiveData } from "@remix-electron/renderer"
+import { useState } from "react"
+import type { AudioSource } from "../pulse.server"
+import { createAudioDeviceSubscriber } from "../pulse.server"
 
-type LoaderData = {
-  userDataPath: string
+type PublishData = {
+  audioSources: AudioSource[]
 }
 
-export function loader() {
-  return json<LoaderData>({
-    userDataPath: app.getPath("userData"),
+export const liveData: LiveDataFunction<PublishData> = ({ publish }) => {
+  return createAudioDeviceSubscriber((audioSources) => {
+    publish({ audioSources })
   })
 }
 
 export default function Index() {
-  const data = useLoaderData<LoaderData>()
+  const { audioSources } = useLiveData<PublishData>() ?? { audioSources: [] }
+
+  const [selected, setSelected] = useState<{
+    name: string
+    sinkInputIndex: number
+  }>()
+
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
-      <h1>Welcome to Remix</h1>
-      <p>{data.userDataPath}</p>
-      <p>mode: {process.env.NODE_ENV}</p>
-    </div>
+    <main>
+      <label>
+        <div>Select audio source ({audioSources.length})</div>
+        <select value={[]}>
+          <option>Choose one...</option>
+          {audioSources.map((source) => (
+            <option key={source.sinkInputIndex}>{source.name}</option>
+          ))}
+        </select>
+      </label>
+    </main>
   )
 }

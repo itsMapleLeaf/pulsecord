@@ -1,6 +1,6 @@
 import { createRemixBrowserWindow, initRemix } from "@remix-electron/main"
 import { app } from "electron"
-import { join } from "path"
+import { join } from "node:path"
 
 app.on("ready", async () => {
   await initRemix()
@@ -9,9 +9,15 @@ app.on("ready", async () => {
     initialRoute: "/",
     icon: join(__dirname, "../public/icon.png"),
     show: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
   })
 
-  win.show()
+  win.on("ready-to-show", () => {
+    win.show()
+  })
 
   if (process.env.NODE_ENV === "development") {
     win.webContents.openDevTools()

@@ -6,11 +6,16 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react"
-import type { MetaFunction } from "@remix-run/server-runtime"
+import type { LinksFunction, MetaFunction } from "@remix-run/server-runtime"
+import tailwindCss from "./tailwind.css"
 
 export const meta: MetaFunction = () => {
   return { title: "New Remix App" }
 }
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: tailwindCss },
+]
 
 export default function App() {
   return (
