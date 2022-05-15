@@ -11,6 +11,7 @@ type IpcMainEventMap = {}
 type IpcHandlerMap = {
   getBotConfig: () => BotConfig | undefined
   setBotConfig: (config: BotConfig) => void
+  setAudioSource: (source: AudioSource) => void
 }
 
 type TypedIpcRendererApi = {

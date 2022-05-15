@@ -1,24 +1,27 @@
 import { app, dialog } from "electron"
 import { PulseAudio } from "pulseaudio.js"
 import { getErrorStack } from "./common/errors"
+import { DesktopAudioPlayer } from "./discord/desktop-audio-player"
 import { Bot } from "./discord/discord-bot"
 import { typedIpcMain } from "./electron/ipc-main-api"
 import { createWindow } from "./electron/window"
 import { getAudioSources } from "./pulseaudio/audio-source"
 
 const pulse = new PulseAudio()
-const bot = new Bot(pulse)
+
+const player = new DesktopAudioPlayer()
+typedIpcMain.handle("setAudioSource", (event, source) => {
+  player.setAudioSource(source)
+})
+
+const bot = new Bot(player)
+typedIpcMain.handle("getBotConfig", async () => bot.config)
+typedIpcMain.handle("setBotConfig", (event, config) => bot.setConfig(config))
 
 app.on("ready", async () => {
   try {
     await pulse.connect()
     await bot.init()
-
-    typedIpcMain.handle("getBotConfig", async () => bot.config)
-
-    typedIpcMain.handle("setBotConfig", async (event, config) =>
-      bot.setConfig(config),
-    )
 
     const win = await createWindow()
 

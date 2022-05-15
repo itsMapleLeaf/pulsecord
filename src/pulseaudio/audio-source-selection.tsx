@@ -29,7 +29,10 @@ export function AudioSourceSelection() {
           <input
             type="radio"
             checked={source === currentAudioSource}
-            onChange={() => setSelection(source)}
+            onChange={() => {
+              setSelection(source)
+              typedIpc.invoke("setAudioSource", source).catch(console.error)
+            }}
           />{" "}
           {source.name}
         </label>

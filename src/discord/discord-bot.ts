@@ -6,9 +6,8 @@ import { joinVoiceChannel } from "@discordjs/voice"
 import type { GuildMember } from "discord.js"
 import { Client } from "discord.js"
 import ElectronStore from "electron-store"
-import type { PulseAudio } from "pulseaudio.js"
 import { z } from "zod"
-import type { AudioSource } from "../pulseaudio/audio-source"
+import type { DesktopAudioPlayer } from "./desktop-audio-player"
 
 const botConfigSchema = z.object({
   token: z.string().nonempty(),
@@ -23,10 +22,9 @@ const store = new ElectronStore<{
 export class Bot {
   config?: BotConfig
   client?: Client
-  audioSource?: AudioSource
   voiceConnection?: VoiceConnection
 
-  constructor(private readonly pulse: PulseAudio) {}
+  constructor(private readonly player: DesktopAudioPlayer) {}
 
   async init() {
     const config = botConfigSchema.safeParse(store.get("discordBotConfig"))
@@ -113,12 +111,11 @@ export class Bot {
       .on("error", (error) => {
         console.error("Voice connection error", error)
       })
+
+    this.voiceConnection.subscribe(this.player.player)
   }
 
   destroyClient() {
     this.client?.destroy()
   }
 }
-
-const maybeString = (value: unknown) =>
-  typeof value === "string" ? value : undefined
