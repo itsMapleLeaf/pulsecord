@@ -4,6 +4,9 @@ import { join } from "node:path"
 export async function createWindow() {
   const win = new BrowserWindow({
     show: false,
+    webPreferences: {
+      preload: join(__dirname, "entry.preload.js"),
+    },
   })
 
   win.on("ready-to-show", () => {
@@ -16,4 +19,6 @@ export async function createWindow() {
     await win.loadURL("http://localhost:3000")
     win.webContents.openDevTools()
   }
+
+  return win
 }

@@ -19,7 +19,8 @@
   },
   "tsup": {
     "entry": [
-      "src/entry.main.ts"
+      "src/entry.main.ts",
+      "src/entry.preload.ts"
     ],
     "format": [
       "cjs"

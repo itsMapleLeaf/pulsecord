@@ -1,4 +1,4 @@
-import { PulseAudio } from "pulseaudio.js"
+import type { PulseAudio } from "pulseaudio.js"
 
 export type AudioSource = {
   name: string
@@ -27,26 +27,4 @@ export async function getAudioSources(
       }
     }),
   )
-}
-
-export function createAudioDeviceSubscriber(
-  onSourcesChange: (sources: AudioSource[]) => void,
-): () => void {
-  const pulse = new PulseAudio()
-
-  const publishSources = async () => {
-    onSourcesChange(await getAudioSources(pulse))
-  }
-
-  void (async () => {
-    await pulse.connect()
-    await publishSources()
-    pulse.on("event.sink_input.new", publishSources)
-    pulse.on("event.sink_input.changed", publishSources)
-    pulse.on("event.sink_input.remove", publishSources)
-  })()
-
-  return () => {
-    void pulse.disconnect()
-  }
 }
