@@ -1,6 +1,7 @@
 import { app, dialog } from "electron"
 import { PulseAudio } from "pulseaudio.js"
 import { getErrorStack } from "./common/errors"
+import { Bot } from "./discord/discord-bot"
 import { typedIpcMain } from "./electron/ipc-main-api"
 import { createWindow } from "./electron/window"
 import { getAudioSources } from "./pulseaudio/audio-source"
@@ -9,6 +10,15 @@ app.on("ready", async () => {
   try {
     const pulse = new PulseAudio()
     await pulse.connect()
+
+    const bot = new Bot(pulse)
+    await bot.init()
+
+    typedIpcMain.handle("getBotConfig", async () => bot.config)
+
+    typedIpcMain.handle("setBotConfig", async (event, config) =>
+      bot.setConfig(config),
+    )
 
     const win = await createWindow()
 

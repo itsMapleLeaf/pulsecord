@@ -1,21 +1,16 @@
 import type { IpcMainEvent, IpcRendererEvent, WebContents } from "electron"
+import type { BotConfig } from "../discord/discord-bot"
 import type { AudioSource } from "../pulseaudio/audio-source"
 
 type IpcRendererEventMap = {
   audioSources: [sources: AudioSource[]]
 }
 
-type IpcMainEventMap = {
-  discordBotToken: [token: string]
-  discordUserId: [id: string]
-}
+type IpcMainEventMap = {}
 
 type IpcHandlerMap = {
-  initialState: () => {
-    sources: AudioSource[]
-    discordBotToken: string
-    discordUserId: string
-  }
+  getBotConfig: () => BotConfig | undefined
+  setBotConfig: (config: BotConfig) => void
 }
 
 type TypedIpcRendererApi = {
@@ -35,7 +30,7 @@ type TypedIpcRendererApi = {
   invoke: <Handler extends keyof IpcHandlerMap>(
     handler: Handler,
     ...args: Parameters<IpcHandlerMap[Handler]>
-  ) => Promise<IpcHandlerMap[Handler]>
+  ) => Promise<ReturnType<IpcHandlerMap[Handler]>>
 }
 
 type TypedIpcMainApi = {
@@ -56,10 +51,13 @@ type TypedIpcMainApi = {
   handle: <Handler extends keyof IpcHandlerMap>(
     handler: Handler,
     callback: (
+      event: IpcMainEvent,
       ...args: Parameters<IpcHandlerMap[Handler]>
-    ) => IpcHandlerMap[Handler],
+    ) => MaybePromise<ReturnType<IpcHandlerMap[Handler]>>,
   ) => void
 }
+
+type MaybePromise<T> = T | Promise<T>
 
 export function createIpcRendererApi() {
   const { ipcRenderer } = require("electron")
