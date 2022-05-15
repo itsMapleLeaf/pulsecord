@@ -1,7 +1,13 @@
 {
   "name": "pulsecord",
+  "description": "plays a pulseaudio stream through a discord bot, a cursed workaround for discord missing screenshare audio on linux",
   "version": "0.0.0",
   "private": true,
+  "author": {
+    "name": "itsMapleLeaf",
+    "email": "mapleleafdev0@gmail.com"
+  },
+  "homepage": "https://github.com/itsMapleLeaf/pulsecord",
   "main": "dist/main/entry.main.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development run-p --race --print-label dev:*",
@@ -15,7 +21,9 @@
     "format": "prettier --write .",
     "test": "vitest",
     "coverage": "vitest --run --coverage",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "pack": "pnpm run build && scripts/dist.mjs --dir",
+    "dist": "pnpm run build && scripts/dist.mjs"
   },
   "tsup": {
     "entry": [
@@ -43,6 +51,7 @@
     "@itsmapleleaf/configs": "^1.1.3",
     "@rushstack/eslint-patch": "^1.1.3",
     "@types/eslint": "^8.4.2",
+    "@types/lodash-es": "^4.17.6",
     "@types/node": "^17.0.33",
     "@types/react": "^18.0.5",
     "@types/react-dom": "^18.0.0",
@@ -52,7 +61,9 @@
     "clsx": "^1.1.1",
     "cross-env": "^7.0.3",
     "electron": "^18.0.4",
+    "electron-builder": "^23.0.3",
     "eslint": "^8.15.0",
+    "lodash-es": "^4.17.21",
     "nodemon": "^2.0.16",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.4.13",
