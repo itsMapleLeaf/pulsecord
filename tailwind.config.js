@@ -1,4 +1,10 @@
 module.exports = {
-  content: ["./app/**/*.{ts,tsx}"],
-  theme: {},
+  content: ["./src/**/*.{ts,tsx}", "index.html"],
+  theme: {
+    extend: {
+      transitionDuration: {
+        0: "0ms",
+      },
+    },
+  },
 }

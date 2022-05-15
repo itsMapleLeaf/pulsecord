@@ -9,7 +9,7 @@ export function MainSection({
 }) {
   return (
     <section>
-      <h2>{title}</h2>
+      <h2 className="font-light text-xl mb-1">{title}</h2>
       {children}
     </section>
   )

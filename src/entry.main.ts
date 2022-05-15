@@ -32,3 +32,7 @@ app.on("ready", async () => {
     dialog.showErrorBox("Error creating window", getErrorStack(error))
   }
 })
+
+app.on("window-all-closed", () => {
+  app.quit()
+})
