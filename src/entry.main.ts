@@ -6,12 +6,12 @@ import { typedIpcMain } from "./electron/ipc-main-api"
 import { createWindow } from "./electron/window"
 import { getAudioSources } from "./pulseaudio/audio-source"
 
+const pulse = new PulseAudio()
+const bot = new Bot(pulse)
+
 app.on("ready", async () => {
   try {
-    const pulse = new PulseAudio()
     await pulse.connect()
-
-    const bot = new Bot(pulse)
     await bot.init()
 
     typedIpcMain.handle("getBotConfig", async () => bot.config)
@@ -45,4 +45,8 @@ app.on("ready", async () => {
 
 app.on("window-all-closed", () => {
   app.quit()
+})
+
+app.on("before-quit", () => {
+  bot.destroyClient()
 })

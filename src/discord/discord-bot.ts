@@ -114,6 +114,10 @@ export class Bot {
         console.error("Voice connection error", error)
       })
   }
+
+  destroyClient() {
+    this.client?.destroy()
+  }
 }
 
 const maybeString = (value: unknown) =>
