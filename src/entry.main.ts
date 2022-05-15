@@ -1,6 +1,7 @@
 import { app, dialog } from "electron"
 import { PulseAudio } from "pulseaudio.js"
 import { getErrorStack } from "./errors"
+import { typedIpcMain } from "./ipc-main-api"
 import { getAudioSources } from "./pulseaudio"
 import { createWindow } from "./window"
 
@@ -13,7 +14,11 @@ app.on("ready", async () => {
 
     const publishSources = async () => {
       try {
-        win.webContents.send("audioSources", await getAudioSources(pulse))
+        typedIpcMain.send(
+          win.webContents,
+          "audioSources",
+          await getAudioSources(pulse),
+        )
       } catch (error) {
         console.error(error)
       }

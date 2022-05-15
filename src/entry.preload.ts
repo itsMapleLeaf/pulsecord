@@ -1,24 +1,9 @@
-import { contextBridge, ipcRenderer } from "electron"
-import type { AudioSource } from "./pulseaudio"
+import { contextBridge } from "electron"
+import { createIpcRendererApi } from "./typed-ipc"
 
-type DesktopApiType = typeof desktopApi
-
-const desktopApi = {
-  subscribeToAudioSources: (callback: (sources: AudioSource[]) => void) => {
-    const listener = (
-      event: Electron.IpcRendererEvent,
-      sources: AudioSource[],
-    ) => callback(sources)
-
-    ipcRenderer.on("audioSources", listener)
-    return () => {
-      ipcRenderer.removeListener("audioSources", listener)
-    }
-  },
-}
-
-contextBridge.exposeInMainWorld("desktopApi", desktopApi)
+const api = createIpcRendererApi()
+contextBridge.exposeInMainWorld("typedIpc", api)
 
 declare global {
-  var desktopApi: DesktopApiType
+  var typedIpc: typeof api
 }

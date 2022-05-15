@@ -14,7 +14,13 @@ export function Root() {
       (source) => source.sinkInputIndex === selection?.sinkInputIndex,
     ) ?? audioSources.find((source) => source.name === selection?.name)
 
-  useEffect(() => desktopApi.subscribeToAudioSources(setAudioSources), [])
+  useEffect(
+    () =>
+      typedIpc.subscribe("audioSources", (_, sources) =>
+        setAudioSources(sources),
+      ),
+    [],
+  )
 
   return (
     <main>
