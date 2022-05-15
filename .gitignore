@@ -2,3 +2,6 @@ node_modules
 build
 .cache
 .vscode
+dist
+coverage
+app/tailwind.css

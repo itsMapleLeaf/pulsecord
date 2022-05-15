@@ -1,18 +1,14 @@
 {
+  "extends": "@itsmapleleaf/configs/tsconfig.base",
+  "include": ["**/*", ".eslintrc.cjs"],
   "compilerOptions": {
-    "target": "es2022",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "paths": {
-      "~/*": ["./app/*"]
-    },
-    "noEmit": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "skipLibCheck": true,
     "jsx": "react-jsx"
-  }
+  },
+  "exclude": [
+    "**/node_modules/**",
+    "**/build/**",
+    "**/dist/**",
+    "**/.cache/**",
+    "**/coverage/**"
+  ]
 }
