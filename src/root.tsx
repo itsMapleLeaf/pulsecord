@@ -20,14 +20,16 @@ export function Root() {
           <XIcon className="h-6" />
         </button>
       </nav>
-      <section className="bg-slate-800 rounded-md p-4 mx-3 flex flex-col gap-3 shadow-lg no-drag">
-        <BotConfigForm />
-      </section>
-      <section className="bg-slate-800 rounded-md p-4 mx-3 flex flex-col gap-3 shadow-lg no-drag">
-        <MainSection title="Audio Sources">
-          <AudioSourceSelection />
-        </MainSection>
-      </section>
+      <div className="flex flex-col gap-3">
+        <section className="bg-slate-800 rounded-md p-4 mx-3 flex flex-col gap-3 shadow-lg no-drag">
+          <BotConfigForm />
+        </section>
+        <section className="bg-slate-800 rounded-md p-4 mx-3 flex flex-col gap-3 shadow-lg no-drag">
+          <MainSection title="Audio Sources">
+            <AudioSourceSelection />
+          </MainSection>
+        </section>
+      </div>
     </>
   )
 }
