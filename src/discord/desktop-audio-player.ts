@@ -45,21 +45,22 @@ export class DesktopAudioPlayer {
   createAudioRecordingProcess(source: AudioSource) {
     this.recordingProcess?.kill()
 
-    // const command = [
-    //   `--device=${source.deviceName}`,
-    //   `--monitor-stream=${source.sinkInputIndex}`,
-    //   "--format=s16le",
-    //   "--rate=44100",
-    //   "--channels=1",
-    //   "--verbose",
-    // ]
-
     this.recordingProcess = spawn("parec", [
-      `--device=${source.deviceName}`,
-      `--monitor-stream=${source.sinkInputIndex}`,
-      "--format=s16le",
-      "--fix-rate",
       "--verbose",
+      "--device",
+      source.deviceName,
+      "--monitor-stream",
+      String(source.sinkInputIndex),
+      // discord.js voice 'raw' wants this
+      "--format=s16le",
+      // pin rate and channels to what discord requires
+      "--rate=48000",
+      "--channels=2",
+      // set latency and processing time as low as parec allows and let
+      // pulseaudio do its best instead -- the defaults are very high to
+      // "power saving reasons" which is suboptimal for sharing live audio
+      "--latency=1",
+      "--process-time=1",
     ])
 
     this.recordingProcess.on("error", (error) =>
